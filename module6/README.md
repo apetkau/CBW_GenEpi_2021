@@ -124,7 +124,7 @@ fastp v0.22.0, time used: 34 seconds
 
 You should now be able to nagivate to <http:[YOUR_MACHINE_URL]/module6_workspace/analysis> and see some of the output files. In particular, you should be able to find **fastp.html**, which contains a report of the quality of the reads and how many were removed. Please take a look at this report now:
 
-![fastp-report][images/fastp.png]
+![fastp-report][]
 
 This should show an overview of the quality of the reads before and after filtering with `fastp`. Using this report, please anser the following questions.
 
@@ -143,7 +143,7 @@ Command documentation is available [here](http://kat.readthedocs.io/en/latest/us
 
 KAT works by breaking down each read into small fragements of length *k*, k-mers, and comparing them to a k-mer database of the human reference genome. Subsequently, the complete read is either assigned into a matched or unmatched file if 10% of the k-mers in the read have been found in the human database.
 
-![kat-overview][images/kat.png]
+![kat-overview][]
 
 Let's run KAT now.
 
@@ -269,3 +269,6 @@ Click on **final_web_report.html**. *Note: if this is not working, what you shou
 [Krona]: https://github.com/marbl/Krona/wiki
 [Megahit]: https://github.com/voutcn/megahit
 [NCBI blast]: https://blast.ncbi.nlm.nih.gov/Blast.cgi
+[fastp-report]: images/fastp.png
+[kat-overview]: images/kat.png
+
