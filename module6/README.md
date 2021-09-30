@@ -401,6 +401,12 @@ To view these results, please browse to <http://YOUR-MACHINE/module6_workspace/a
 1. What is the closest match for the longest contig you find in your data? Recall that if a pathogen is an emerging/novel pathogen then you may not get a perfect match to any existing organisms.
 2. Using the BLAST report alongside all other information we've gathered, what can you say about what pathogen may be causing the patient's symptoms?
 
+---
+
+### Final words
+
+Congratulations, you've finished this lab. As a final check on your results, you can use [NCBI's online tool](https://blast.ncbi.nlm.nih.gov/Blast.cgi) to perform a BLAST on a larger database to see if you get any better matches.
+
 
 [fastp]: https://github.com/OpenGene/fastp
 [multiqc]: https://multiqc.info/
