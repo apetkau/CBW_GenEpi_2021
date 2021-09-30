@@ -258,8 +258,39 @@ ktImportTaxonomy krona_input.txt -o krona_report.html
 
 Let’s look at what Krona generated. Return to your web browser and refresh the page from Step 1 to see the new files added in the `module6_workspace/analysis` directory.
 
-Click on **final_web_report.html**. *Note: if this is not working, what you should see is shown in the image [here](images/krona_ex1.png)*.
+Click on **final_web_report.html**. *Note: if this is not working, what you should see is shown in the image [krona-all.png][]*.
 
+#### Step 4: Questions
+
+1. What does the distribution of taxa found in the reads look like? Is there any pathogen here that could be consistent with a cause for the patients symptoms?
+2. This data was derived from RNA (instead of DNA) and some viruses are RNA-based. Take a look into the **Viruses** category in Krona (by expanding this category). Is there anything here that could be consistent with the patient's symptoms? *Note: if you cannot expand the **Viruses** category what you should see is shown in this image [krona-viruses.png][].*.
+3. Given The results of Krona, can you form a hypothesis as to the cause of the patient's symptoms?
+
+---
+
+### Step 5: Metatranscriptom assembly
+
+In order to investigate the data further we will assemble the metatranscriptome using the software [Megahit][]. To do this please run the following:
+
+**Commands**
+```bash
+# Time: 6 minutes
+megahit -t 4 -1 filtered.in.R1.fastq -2 filtered.in.R2.fastq -o megahit_out
+```
+
+If everything is working you should expect to see the following as output:
+
+```
+2021-09-30 11:53:35 - MEGAHIT v1.2.9
+2021-09-30 11:53:35 - Using megahit_core with POPCNT and BMI2 support
+2021-09-30 11:53:35 - Convert reads to binary library
+2021-09-30 11:53:36 - b'INFO  sequence/io/sequence_lib.cpp  :   75 - Lib 0 (/media/cbwdata/workspace/module6_workspace/analysis/filtered.in.R1.fastq,/media/cbwdata/workspace/module6_workspace/analysis/filtered.in.R2.fastq): pe, 2255816 reads, 151 max length'
+2021-09-30 11:53:36 - b'INFO  utils/utils.h                 :  152 - Real: 1.9096\tuser: 1.8361\tsys: 0.3320\tmaxrss: 166624'
+2021-09-30 11:53:36 - k-max reset to: 141
+2021-09-30 11:53:36 - Start assembly. Number of CPU threads 4
+[...]
+
+```
 
 
 [fastp]: https://github.com/OpenGene/fastp
@@ -271,4 +302,5 @@ Click on **final_web_report.html**. *Note: if this is not working, what you shou
 [NCBI blast]: https://blast.ncbi.nlm.nih.gov/Blast.cgi
 [fastp-report]: images/fastp.png
 [kat-overview]: images/kat.png
-
+[krona-all.png]: images/krona-all.png
+[krona-viruses.png]: images/krona-viruses.png
