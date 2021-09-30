@@ -34,6 +34,7 @@ This tutorial aims to introduce a variety of software and concepts related to de
 * [Kraken2][]
 * [Krona][]
 * [Megahit][]
+* [Quast][]
 * [NCBI blast][]
 
 <a name="setup"></a>
@@ -288,9 +289,117 @@ If everything is working you should expect to see the following as output:
 2021-09-30 11:53:36 - b'INFO  utils/utils.h                 :  152 - Real: 1.9096\tuser: 1.8361\tsys: 0.3320\tmaxrss: 166624'
 2021-09-30 11:53:36 - k-max reset to: 141
 2021-09-30 11:53:36 - Start assembly. Number of CPU threads 4
+
 [...]
 
+2021-09-30 11:58:01 - Assemble contigs from SdBG for k = 141
+2021-09-30 11:58:02 - Merging to output final contigs
+2021-09-30 11:58:02 - 3112 contigs, total 1536607 bp, min 203 bp, max 29867 bp, avg 493 bp, N50 463 bp
+2021-09-30 11:58:02 - ALL DONE. Time elapsed: 267.449160 seconds
 ```
+
+Once everything is completed, you will have a directory `megahit_out/` with the output. Let's take a look at this now:
+
+**Commands**
+```bash
+ls megahit_out/
+```
+
+**Output**
+```
+checkpoints.txt  done  final.contigs.fa  intermediate_contigs  log  options.json
+```
+
+It's specifically the **final.contigs.fa** file that contains our metatranscriptome assembly. This will contain the largest *contiguous* sequences Megahit was able to construct from the sequence reads. We can look at the contents with the command `head`:
+
+**Commands**
+```bash
+head megahit_out/final.contigs.fa
+```
+
+**Output**
+```
+>k141_0 flag=1 multi=3.0000 len=312
+ATACTGATCTTAGAAAGCTTAGATTTCATCTTTTCAATTGGTGTATCGAATTTAGATACAAATTTAGCTAAGGATTTAGACATTTCAGCTTTATCTACAGTAGAGTATACTTTAATATCTTGAAGTACACCAGTTACTTTAGACTTAATCAAAATTTTACCCAAATCATTAACTAGATCTTTAGAATCAGAATTCTTTTCTACCATTTTAGCGATGATATCTGTTGCATCTTGATCTTCAAATGAAGATCTATATGACATGATAGTTTGACCTTCTTGTAGTTGAGATCCAACTTCTAAACATTCGATGTCT
+>k141_1570 flag=1 multi=2.0000 len=328
+GAGCATCGCGCAGAAGTATCTGTACTCCCTTTACTCCACGCAAGTCTTTCTCATACTCACGCTCGACACCCATCTTACCGATATAATCTCCCGGCTGATAGTACTCGTCTTCCTCAATATCACCCTGACTCACCTCTGCAACATCCCCAAGGACATGTGCAGCGATAGCTCGTTGATACTGACGAACACTACGTTTCTGAATATAAAAGCCTGGAAAACGATAGAGTTTCTCTTGGAAGGCGCTAAAGTCTTTATCACTCAATTGGCTCAAGAATAGTTGCTGCGTAAAGCGAGAGTAACCCGGATTCTTACTCCTATCCTTGATCCC
+[...]
+```
+
+It can be a bit difficult to get an overall idea of what is in this file, so in the next step we will use the software [Quast][] to summarize the assembly information.
+
+---
+
+### Step 6: Evaluate assembly with Quast
+
+[Quast][] can be used to provide summary statistics on the output of assembly software. We will run Quast on our data by running the following command:
+
+**Commands**
+```bash
+# Time: 2 seconds
+quast -t 4 megahit_out/final.contigs.fa
+```
+
+You should expect to see the following as output:
+
+```
+/home/ubuntu/.conda/envs/cbw-emerging-pathogen/bin/quast -t 4 megahit_out/final.contigs.fa
+
+Version: 5.0.2
+
+System information:
+  OS: Linux-5.11.0-1017-aws-x86_64-with-debian-bullseye-sid (linux_64)
+  Python version: 3.7.10
+  CPUs number: 4
+
+Started: 2021-09-30 14:54:58
+
+[...]
+
+Finished: 2021-09-30 14:55:00
+Elapsed time: 0:00:01.768326
+NOTICEs: 1; WARNINGs: 0; non-fatal ERRORs: 0
+
+Thank you for using QUAST!
+```
+
+Quast writes it's output to a directory `quast_results/`, which includes HTML and PDF reports. We can view this using a web browser by navigating to <http://[YOUR-MACHINE]/module6_workspace/analysis/quast_results/latest/icarus.html>. From here, click on **Contig size viewer**. You should see the following:
+
+![quast-contigs.png][]
+
+This shows the length of each contig in the `megahit_out/final.contigs.fa` file, sorted by size.
+
+#### Step 6: Questions
+
+1. What is the length of the largest contig in the genome? How does it compare to the length of the 2nd and 3rd largest contigs?
+2. Given that this is RNASeq data (i.e., sequences derived from RNA), what is the most common type of RNA you should expect to find? What is the approximate lengths of these RNA fragments? Is the largest contig an outlier (i.e., is it much longer than you would expect)?
+3. Is there another type of source for this RNA fragment that could explain it's length? Possibly a [Virus][https://en.wikipedia.org/wiki/Coronavirus#Genome]?
+
+---
+
+### Step 7: Use BLAST to look for existing organisms
+
+In order to get a better handle on what the identity of this large contig could be, let's use [BLAST][] to compare to a database of existing viruses. Please run the following:
+
+**Commands**
+```
+# Time: seconds
+seqkit sort --by-length --reverse megahit_out/final.contigs.fa | seqkit head -n 50 > contigs-50.fa
+blastn -db ~/CourseData/IDE_data/module6/db/blast_db/ref_viruses_rep_genomes_modified -query contigs-50.fa -html -out blast_results.html
+```
+
+Here, we first use [seqkit][] to sort all contigs by length (`seqkit sort --by-length ...`) and we then extract only the top **50** longest contigs (`seqkit head -n 50`) and write these to a file **contigs-50.fa** (`> contigs-50.fa`).
+
+Next, we run [BLAST][] on these top 50 longest contigs using a pre-computed database of viral genomes (`blastn -db ~/CourseData/IDE_data/module6/db/blast_db/ref_viruses_rep_genomes_modified -query contigs-50.fa ...`). The (`-html -out blast_results.html`) tells BLAST to write it's results as an HTML file.
+
+To view these results, please browse to <http://YOUR-MACHINE/module6_workspace/analysis/blast_results.html> to view the ouptut `blast_results.html` file. This should look something like below:
+
+![blast-report.png][]
+
+#### Step 7: Questions
+
+1. What is the closest match for the longest contig you find in your data? Recall that if a pathogen is an emerging/novel pathogen then you may not get a perfect match to any existing organisms.
+2. Using the BLAST report alongside all other information we've gathered, what can you say about what pathogen may be causing the patient's symptoms?
 
 
 [fastp]: https://github.com/OpenGene/fastp
@@ -300,7 +409,11 @@ If everything is working you should expect to see the following as output:
 [Krona]: https://github.com/marbl/Krona/wiki
 [Megahit]: https://github.com/voutcn/megahit
 [NCBI blast]: https://blast.ncbi.nlm.nih.gov/Blast.cgi
+[seqkit]: https://bioinf.shenwei.me/seqkit/
 [fastp-report]: images/fastp.png
 [kat-overview]: images/kat.png
 [krona-all.png]: images/krona-all.png
 [krona-viruses.png]: images/krona-viruses.png
+[quast-contigs.png]: images/quast-contigs.png
+[Quast]: http://quast.sourceforge.net/quast
+[blast-report.png]: images/blast-report.png
